@@ -1,20 +1,39 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
+import IonIcon from '../components/IonIcon'
 
 export default function Home() {
     const [inputValue, setInputValue] = useState('')
     const [searchValues, setSearchValues] = useState([])
     const [currentSong, setCurrentSong] = useState('')
     const [isVisible, setIsVisible] = useState(false)
+    const [isVisibleLikedSongs, setIsVisibleLikedSongs] = useState(true)
     const [isFetched, setFetched] = useState(false)
+    const [isLiked, setLiked] = useState(false)
+    const [likedSongs, setLikedSongs] = useState([])
+
+    async function loadLikedSongs() {
+
+        if (!localStorage.getItem('likedSongs')) {
+            localStorage.setItem('likedSongs', [])
+        }
+
+        const likedSongsArr = JSON.parse(localStorage.getItem('likedSongs'))
+        setLikedSongs(likedSongsArr)
+    }
+
+    useEffect(() => {
+        loadLikedSongs()
+    }, [])
 
     useEffect(() => {
         async function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 try {
-                    const response = await axios.get(`http://localhost:3000/search/${inputValue}`)
+                    const response = await axios.get(`https://blondefy.onrender.com/search/${inputValue}`)
                     setSearchValues(response.data.data)
                     setFetched(true)
+                    setIsVisibleLikedSongs(false)
                 } catch (error) {
                     console.error('Erro ao buscar dados:', error)
                 }
@@ -29,8 +48,11 @@ export default function Home() {
     }, [inputValue])
 
     async function getSong(songUrl, songInfos) {
+
+        setLiked(false)
+
         try {
-            const response = await axios.post('http://localhost:3000/get-stream-url', {
+            const response = await axios.post('https://blondefy.onrender.com/get-stream-url', {
                 videoUrl: songUrl,
             })
             setCurrentSong({
@@ -44,6 +66,44 @@ export default function Home() {
         }
     }
 
+    async function getLikedSong(song) {
+        setCurrentSong({
+            info: song?.info,
+            audio: song?.audio
+        })
+
+        setIsVisible(true)
+        setLiked(true)
+    }
+
+    function likeSong(songInfo) {
+
+        let updatedLikedSongs
+
+        if (isLiked) {
+            setLiked(false)
+            updatedLikedSongs = likedSongs.filter(song => song.videoId !== songInfo.info.videoId);
+            setLikedSongs(updatedLikedSongs);
+        } else {
+            setLiked(true)
+            console.log(songInfo)
+            updatedLikedSongs = [...likedSongs, songInfo];
+            setLikedSongs(updatedLikedSongs);
+        }
+
+        localStorage.setItem('likedSongs', JSON.stringify(updatedLikedSongs));
+    }
+
+    function toggleToLikedSongs() {
+        if (isVisibleLikedSongs) {
+            setIsVisibleLikedSongs(false)
+            setFetched(true)
+        } else {
+            setIsVisibleLikedSongs(true)
+            setFetched(false)
+        }
+    }
+
     return (
         <>
             <div className="bg-[#1E1E1E] text-white p-5">
@@ -51,9 +111,15 @@ export default function Home() {
                     <span>
                         <img className="w-[50px] h-[50px] rounded-full object-cover" src="/default.webp" alt="" />
                     </span>
-                    <span className="mx-4">
-                        <h1 className="text-2xl">Username</h1>
-                        <b>FREE</b>
+                    <span className="mx-4 w-[250px]">
+                        <h1 className="text-2xl font-semibold">FREEMIUM USER</h1>
+                        <b className="text-sm text-gray-400">FREE</b>
+                    </span>
+                    <span
+                        className='text-2xl p-2 border flex items-center rounded-sm bg-[#cccccc14]'
+                        onClick={() => toggleToLikedSongs()}
+                    >
+                        <IonIcon size="large" name="albums" />
                     </span>
                 </div>
 
@@ -71,7 +137,7 @@ export default function Home() {
                 </div>
 
                 <h2 className='px-2 my-1 font-semibold'>{isFetched ? `Resultados` : ''}</h2>
-                <div className={`overflow-y-scroll mb-2 ${isVisible ? 'h-[62vh]' : 'h-[100vh]'}`}>
+                <div className={`overflow-y-scroll mb-2 ${isVisible ? 'h-[62vh]' : 'h-[100vh]'} ${isFetched ? 'uk-display-block h-[62vh]' : 'hidden h-[100vh]'}`}>
 
                     {searchValues.map((result) => (
 
@@ -88,8 +154,33 @@ export default function Home() {
                                 />
                             </span>
                             <span>
-                                <h2 className="whitespace-nowrap text-ellipsis overflow-hidden w-[250px]">{result.title}</h2>
-                                <b>{result.author.name}</b>
+                                <h2 className="whitespace-nowrap text-ellipsis overflow-hidden w-[250px] font-bold">{result.title}</h2>
+                                <p>{result.author.name}</p>
+                            </span>
+                        </div>
+                    ))}
+                </div>
+
+                <h2 className="px-2 my-1 font-semibold">{isVisibleLikedSongs ? 'Minhas Músicas' : ''}</h2>
+                <div className={`overflow-y-scroll mb-2 ${isVisibleLikedSongs ? 'uk-display-block h-[62vh]' : 'hidden h-[100vh]'}`}>
+
+                    {likedSongs.map((song) => (
+
+                        <div
+                            key={song?.info?.videoId}
+                            onClick={() => getLikedSong(song)}
+                            className="m-2 mx-2 p-2 cursor-pointer rounded-md flex items-center"
+                        >
+                            <span className="mr-4">
+                                <img
+                                    src={song?.info?.image}
+                                    className="max-w-14 h-14 object-cover rounded-sm uk-box-shadow-large"
+                                    alt=""
+                                />
+                            </span>
+                            <span>
+                                <h2 className="whitespace-nowrap text-ellipsis overflow-hidden w-[250px] font-bold">{song?.info?.title}</h2>
+                                <p>{song?.info?.author?.name}</p>
                             </span>
                         </div>
                     ))}
@@ -101,8 +192,14 @@ export default function Home() {
                             <img className="max-w-14 h-14 object-cover rounded-sm uk-box-shadow-xlarge" src={currentSong?.info?.image} alt="" />
                         </span>
                         <span className="px-4">
-                            <h1 className="text-xlg whitespace-nowrap text-ellipsis overflow-hidden w-[250px]">{currentSong?.info?.title}</h1>
-                            <b className="text-sm">{currentSong?.info?.author.name}</b>
+                            <h1 className="text-xlg whitespace-nowrap text-ellipsis overflow-hidden w-[190px] font-bold">{currentSong?.info?.title}</h1>
+                            <p className="text-sm whitespace-nowrap text-ellipsis overflow-hidden">{currentSong?.info?.author.name}</p>
+                        </span>
+                        <span
+                            className="px-4 w-[100px] flex items-center cursor-pointer"
+                            onClick={() => likeSong(currentSong)}
+                        >
+                            <IonIcon size="large" name={isLiked ? 'heart' : 'heart-outline'} />
                         </span>
                     </div>
 
