@@ -11,6 +11,11 @@ export default function Home() {
     const [isFetched, setFetched] = useState(false)
     const [isLiked, setLiked] = useState(false)
     const [likedSongs, setLikedSongs] = useState([])
+    const [progress, setProgress] = useState(0)
+    const [isLoading, setLoading] = useState(false)
+
+
+    const imgPick = 'https://64.media.tumblr.com/664ef52d2a17712a32ae3edaf868f312/13ef9ecd4c994832-27/s540x810/aec9f1fb7edd4beace7e486e1466c573ca0ad34b.gif'
 
     async function loadLikedSongs() {
 
@@ -30,10 +35,21 @@ export default function Home() {
         async function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 try {
-                    const response = await axios.get(`https://blondefy.onrender.com/search/${inputValue}`)
+                    const response = await axios.get(`https://blondefy.onrender.com/search/${inputValue}`, {
+                        onDownloadProgress: (progressEvent) => {
+                            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                            setProgress(percentCompleted)
+                            console.log(progress)
+                        }
+                    })
                     setSearchValues(response.data.data)
-                    setFetched(true)
+                    setLoading(true)
                     setIsVisibleLikedSongs(false)
+
+                    setInterval(() => {
+                        setFetched(true)
+                    }, 3000)
+
                 } catch (error) {
                     console.error('Erro ao buscar dados:', error)
                 }
@@ -45,7 +61,17 @@ export default function Home() {
         return () => {
             document.removeEventListener('keydown', handleKeyPress)
         }
-    }, [inputValue])
+    }, [inputValue, progress])
+
+    useEffect(() => {
+        if (isLoading) {
+            const timeoutId = setTimeout(() => {
+                setLoading(false)
+            }, 3000)
+
+            return () => clearTimeout(timeoutId)
+        }
+    }, [isLoading, progress])
 
     async function getSong(songUrl, songInfos) {
 
@@ -75,6 +101,7 @@ export default function Home() {
         setIsVisible(true)
         setLiked(true)
     }
+
 
     function likeSong(songInfo) {
 
@@ -109,10 +136,14 @@ export default function Home() {
             <div className="bg-[#1E1E1E] text-white p-5">
                 <div className="flex items-center">
                     <span>
-                        <img className="w-[50px] h-[50px] rounded-full object-cover" src="/default.webp" alt="" />
+                        <img
+                            className="w-[50px] h-[50px] rounded-full object-cover"
+                            src={imgPick}
+                            alt=""
+                        />
                     </span>
                     <span className="mx-4 w-[250px]">
-                        <h1 className="text-2xl font-semibold">FREEMIUM USER</h1>
+                        <h1 className="text-2xl font-semibold">Test user</h1>
                         <b className="text-sm text-gray-400">FREE</b>
                     </span>
                     <span
@@ -124,7 +155,7 @@ export default function Home() {
                 </div>
 
                 <div className="my-5">
-                    <div className="uk-margin">
+                    <div className="uk-margin mb-2">
                         <input
                             className="uk-input border-2 text-white text-lg py-[20px] font-bold placeholder:font-bold"
                             type="text"
@@ -133,6 +164,12 @@ export default function Home() {
                             placeholder="O que voce quer ouvir ?"
                             aria-label="search"
                         />
+                    </div>
+
+                    <div>
+                        <img
+                            className={`${isLoading ? 'block' : 'hidden'}`}
+                            src="https://i.pinimg.com/originals/e2/63/00/e26300c0c746d3163a0f48223c897cee.gif" alt="" />
                     </div>
                 </div>
 
