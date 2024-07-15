@@ -1,4 +1,4 @@
-import ytdl from 'ytdl-core'
+import ytdl from '@distube/ytdl-core'
 import yt from 'yt-search'
 
 async function searchSong(req, res) {
