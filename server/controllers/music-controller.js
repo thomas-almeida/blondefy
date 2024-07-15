@@ -40,14 +40,13 @@ async function getStreamUrl(req, res) {
         if (audioFormats.length > 0) {
 
             const audioUrl = audioFormats[0].url
-            const proxyUrl = 'http://186.215.87.194:6005'
+            
+            const cookieMap = new cookiefile.CookieMap('cookies.txt')
+            const cookies = cookieMap.toRequestHeader().Replace('Cookie: ','')
+
             const requestOptions = {
                 headers: {
-                    headers: {
-                        'Proxy-Authorization': 'Basic',
-                      },
-                      agent: false, // Desativa o agente padrão para usar o proxy
-                      proxy: proxyUrl,
+                    Cookie: cookies
                 }
             }
 
