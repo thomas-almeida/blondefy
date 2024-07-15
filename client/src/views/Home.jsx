@@ -11,7 +11,6 @@ export default function Home() {
     const [isFetched, setFetched] = useState(false)
     const [isLiked, setLiked] = useState(false)
     const [likedSongs, setLikedSongs] = useState([])
-    const [progress, setProgress] = useState(0)
     const [isLoading, setLoading] = useState(false)
 
 
@@ -60,7 +59,7 @@ export default function Home() {
         return () => {
             document.removeEventListener('keydown', handleKeyPress)
         }
-    }, [inputValue, progress])
+    }, [inputValue])
 
     useEffect(() => {
         if (isLoading) {
@@ -70,7 +69,7 @@ export default function Home() {
 
             return () => clearTimeout(timeoutId)
         }
-    }, [isLoading, progress])
+    }, [isLoading])
 
     async function getSong(songUrl, songInfos) {
 
