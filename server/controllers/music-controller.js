@@ -32,9 +32,9 @@ async function searchSong(req, res) {
 
 async function getStreamUrl(req, res) {
     try {
-        const { videoUrl } = req.body // Obtém o videoUrl do corpo da requisição
-        const videoInfo = await ytdl.getInfo(videoUrl)
-        const audioFormats = ytdl.filterFormats(videoInfo.formats, "audioonly")
+        const { videoId } = req.body // Obtém o videoUrl do corpo da requisição
+        const videoInfo = await ytdl.getInfo(videoId)
+        const audioFormats = ytdl.filterFormats(videoInfo.formats, 'audioonly')
 
         if (audioFormats.length > 0) {
             // Verifica se há formatos de áudio disponíveis

@@ -71,14 +71,13 @@ export default function Home() {
         }
     }, [isLoading])
 
-    async function getSong(songUrl, songInfos) {
+    async function getSong(songId, songInfos) {
 
         setLiked(false)
 
         try {
-            axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
             const response = await axios.post('https://blondefy.onrender.com/get-stream-url', {
-                videoUrl: songUrl,
+                videoId: songId,
             }, {
                 headers: {
                     'Access-Control-Allow-Origin': '*'
@@ -184,7 +183,7 @@ export default function Home() {
 
                         <div
                             key={result.videoId}
-                            onClick={() => getSong(result.url, result)}
+                            onClick={() => getSong(result.videoId, result)}
                             className="m-2 mx-2 p-2 cursor-pointer rounded-md flex items-center"
                         >
                             <span className="mr-4">
