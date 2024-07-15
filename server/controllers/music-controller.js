@@ -44,6 +44,7 @@ async function getStreamUrl(req, res) {
             res.status(404).json({ error: "Nenhum formato de áudio encontrado." })
         }
     } catch (error) {
+        res.status(500).json({ message: 'internal server error..' })
         console.error(error)
     }
 }
