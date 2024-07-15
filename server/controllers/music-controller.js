@@ -44,11 +44,9 @@ async function getStreamUrl(req, res) {
             res.status(404).json({ error: "Nenhum formato de áudio encontrado." })
         }
     } catch (error) {
-        next(error)
+        console.error(error)
     }
 }
-
-
 
 export default {
     searchSong,

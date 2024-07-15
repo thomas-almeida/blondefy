@@ -36,12 +36,11 @@ export default function Home() {
             if (event.key === 'Enter') {
                 try {
                     const response = await axios.get(`https://blondefy.onrender.com/search/${inputValue}`, {
-                        onDownloadProgress: (progressEvent) => {
-                            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                            setProgress(percentCompleted)
-                            console.log(progress)
+                        headers: {
+                            'Access-Control-Allow-Origin': '*'
                         }
                     })
+                    
                     setSearchValues(response.data.data)
                     setLoading(true)
                     setIsVisibleLikedSongs(false)
@@ -78,9 +77,15 @@ export default function Home() {
         setLiked(false)
 
         try {
+            axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
             const response = await axios.post('https://blondefy.onrender.com/get-stream-url', {
                 videoUrl: songUrl,
+            }, {
+                headers: {
+                    'Access-Control-Allow-Origin': '*'
+                }
             })
+
             setCurrentSong({
                 info: songInfos,
                 audio: response.data.audioUrl
