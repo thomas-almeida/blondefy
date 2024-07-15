@@ -40,11 +40,14 @@ async function getStreamUrl(req, res) {
         if (audioFormats.length > 0) {
 
             const audioUrl = audioFormats[0].url
-
-            const cookies = 'nomoremusic'
+            const proxyUrl = 'http://186.215.87.194:6005'
             const requestOptions = {
                 headers: {
-                    Cookie: cookies
+                    headers: {
+                        'Proxy-Authorization': 'Basic',
+                      },
+                      agent: false, // Desativa o agente padrão para usar o proxy
+                      proxy: proxyUrl,
                 }
             }
 
