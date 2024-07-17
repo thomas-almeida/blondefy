@@ -13,8 +13,7 @@ export default function Home() {
     const [likedSongs, setLikedSongs] = useState([])
     const [isLoading, setLoading] = useState(false)
 
-
-    const imgPick = 'https://64.media.tumblr.com/664ef52d2a17712a32ae3edaf868f312/13ef9ecd4c994832-27/s540x810/aec9f1fb7edd4beace7e486e1466c573ca0ad34b.gif'
+    const vpsEndpoint = 'https://89cd-179-94-36-68.ngrok-free.app'
 
     async function loadLikedSongs() {
 
@@ -33,24 +32,7 @@ export default function Home() {
     useEffect(() => {
         async function handleKeyPress(event) {
             if (event.key === 'Enter') {
-                try {
-                    const response = await axios.get(`https://blondefy.onrender.com/search/${inputValue}`, {
-                        headers: {
-                            'Access-Control-Allow-Origin': '*'
-                        }
-                    })
-                    
-                    setSearchValues(response.data.data)
-                    setLoading(true)
-                    setIsVisibleLikedSongs(false)
-
-                    setInterval(() => {
-                        setFetched(true)
-                    }, 3000)
-
-                } catch (error) {
-                    console.error('Erro ao buscar dados:', error)
-                }
+                searchSong()
             }
         }
 
@@ -59,7 +41,8 @@ export default function Home() {
         return () => {
             document.removeEventListener('keydown', handleKeyPress)
         }
-    }, [inputValue])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         if (isLoading) {
@@ -71,16 +54,41 @@ export default function Home() {
         }
     }, [isLoading])
 
+    async function searchSong() {
+        try {
+            const response = await axios.get(`${vpsEndpoint}/search/${inputValue}`, {
+                headers: {
+                    'ngrok-skip-browser-warning': '69420',
+                    'Access-Control-Allow-Origin': '*',
+                }
+            })
+
+            setSearchValues(response.data.data)
+            setLoading(true)
+
+            if (response.data.data) {
+                setIsVisibleLikedSongs(false)
+                setFetched(true)
+            }
+
+
+
+        } catch (error) {
+            console.error('Erro ao buscar dados:', error)
+        }
+    }
+
     async function getSong(songId, songInfos) {
 
         setLiked(false)
 
         try {
-            const response = await axios.post('https://blondefy.onrender.com/get-stream-url', {
+            const response = await axios.post(`${vpsEndpoint}/get-stream-url`, {
                 videoId: songId,
             }, {
                 headers: {
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': '*',
+                    'ngrok-skip-browser-warning': '69420'
                 }
             })
 
@@ -100,7 +108,7 @@ export default function Home() {
             info: song?.info,
             audio: song?.audio
         })
-
+        console.log(currentSong)
         setIsVisible(true)
         setLiked(true)
     }
@@ -124,49 +132,57 @@ export default function Home() {
         localStorage.setItem('likedSongs', JSON.stringify(updatedLikedSongs));
     }
 
-    function toggleToLikedSongs() {
-        if (isVisibleLikedSongs) {
-            setIsVisibleLikedSongs(false)
-            setFetched(true)
-        } else {
+    function toogleLikedSongs() {
+
+        if (isVisibleLikedSongs === false) {
             setIsVisibleLikedSongs(true)
             setFetched(false)
         }
     }
 
+    function toogleSearchResults() {
+
+        if (isFetched === false) {
+            setIsVisibleLikedSongs(false)
+            setFetched(true)
+        }
+    }
+
+
+
     return (
         <>
-            <div className="bg-[#1E1E1E] text-white p-5">
+            <div className="p-5">
                 <div className="flex items-center">
                     <span>
                         <img
                             className="w-[50px] h-[50px] rounded-full object-cover"
-                            src={imgPick}
+                            src='/default.webp'
                             alt=""
                         />
                     </span>
                     <span className="mx-4 w-[250px]">
                         <h1 className="text-2xl font-semibold">Test user</h1>
-                        <b className="text-sm text-gray-400">FREE</b>
-                    </span>
-                    <span
-                        className='text-2xl p-2 border flex items-center rounded-sm bg-[#cccccc14]'
-                        onClick={() => toggleToLikedSongs()}
-                    >
-                        <IonIcon size="large" name="albums" />
+                        <b className="text-sm text-gray-400">FREE FOREVER</b>
                     </span>
                 </div>
 
                 <div className="my-5">
-                    <div className="uk-margin mb-2">
+                    <div className="uk-margin mb-2 flex items-center">
                         <input
-                            className="uk-input border-2 text-white text-lg py-[20px] font-bold placeholder:font-bold"
+                            className="uk-input border rounded-sm text-white text-lg py-[25px] font-bold placeholder:font-bold"
                             type="text"
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             placeholder="O que voce quer ouvir ?"
                             aria-label="search"
                         />
+                        <div
+                            className='absolute right-7 w-[50px] text-xl rounded-sm p-2 py-[10px] bg-[#ffffff52] flex items-center justify-center'
+                            onClick={() => searchSong()}
+                        >
+                            <IonIcon name="search" />
+                        </div>
                     </div>
 
                     <div>
@@ -176,8 +192,23 @@ export default function Home() {
                     </div>
                 </div>
 
-                <h2 className='px-2 my-1 font-semibold'>{isFetched ? `Resultados` : ''}</h2>
-                <div className={`overflow-y-scroll mb-2 ${isVisible ? 'h-[62vh]' : 'h-[100vh]'} ${isFetched ? 'uk-display-block h-[62vh]' : 'hidden h-[100vh]'}`}>
+                <div className='flex mb-4'>
+                    <h2
+                        className="p-2 my-1 font-semibold border border-[#ffffff5b] mr-2 rounded-sm flex items-center"
+                        onClick={() => toogleLikedSongs()}
+                    >
+                        <IonIcon name="heart" />
+                        <p className='ml-1'>Minhas Músicas</p>
+                    </h2>
+                    <h2
+                        className='p-2 my-1 font-semibold border border-[#ffffff5b] mr-2 rounded-sm flex items-center'
+                        onClick={() => toogleSearchResults()}
+                    >
+                        <IonIcon name="search" />
+                        <p className='ml-1'>Resultados da Busca</p>
+                    </h2>
+                </div>
+                <div className={`overflow-y-scroll mb-2 ${isVisible ? 'h-[55vh]' : 'h-[100vh]'} ${isFetched ? 'uk-display-block h-[62vh]' : 'hidden h-[100vh]'}`}>
 
                     {searchValues.map((result) => (
 
@@ -194,15 +225,25 @@ export default function Home() {
                                 />
                             </span>
                             <span>
+
                                 <h2 className="whitespace-nowrap text-ellipsis overflow-hidden w-[250px] font-bold">{result.title}</h2>
-                                <p>{result.author.name}</p>
+                                <div className='flex items-center'>
+                                    <div className={`flex items-center ${result.title === currentSong?.info?.title ? 'block' : 'hidden'} text-green-400`}>
+                                        <div className='flex items-center text-[7pt]'>
+                                            <IonIcon name="ellipse" />
+                                        </div>
+                                        <p className='mr-2 ml-[2px] font-semibold whitespace-nowrap'>
+                                            Tocando Agora
+                                        </p>
+                                    </div>
+                                    <p className='whitespace-nowrap text-ellipsis overflow-hidden'>{result.author?.name}</p>
+                                </div>
                             </span>
                         </div>
                     ))}
                 </div>
 
-                <h2 className="px-2 my-1 font-semibold">{isVisibleLikedSongs ? 'Minhas Músicas' : ''}</h2>
-                <div className={`overflow-y-scroll mb-2 ${isVisibleLikedSongs ? 'uk-display-block h-[62vh]' : 'hidden h-[100vh]'}`}>
+                <div className={`overflow-y-scroll mb-2 ${isVisibleLikedSongs ? 'uk-display-block' : 'hidden h-[100vh]'} ${isVisible ? `h-[55vh]` : ''}`}>
 
                     {likedSongs.map((song) => (
 
@@ -220,7 +261,17 @@ export default function Home() {
                             </span>
                             <span>
                                 <h2 className="whitespace-nowrap text-ellipsis overflow-hidden w-[250px] font-bold">{song?.info?.title}</h2>
-                                <p>{song?.info?.author?.name}</p>
+                                <div className='flex items-center'>
+                                    <div className={`flex items-center ${song?.info?.title === currentSong?.info?.title ? 'block' : 'hidden'} text-green-400`}>
+                                        <div className='flex items-center text-[7pt]'>
+                                            <IonIcon name="ellipse" />
+                                        </div>
+                                        <p className='mr-2 ml-[2px] font-semibold whitespace-nowrap'>
+                                            Tocando Agora
+                                        </p>
+                                    </div>
+                                    <p className='whitespace-nowrap text-ellipsis overflow-hidden'>{song?.info?.author?.name}</p>
+                                </div>
                             </span>
                         </div>
                     ))}
