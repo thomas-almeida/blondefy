@@ -1,5 +1,4 @@
 import ytdl from '@distube/ytdl-core'
-import { Cookie } from 'tough-cookie'
 import yt from 'yt-search'
 
 async function searchSong(req, res) {
@@ -40,22 +39,7 @@ async function getStreamUrl(req, res) {
         if (audioFormats.length > 0) {
 
             const audioUrl = audioFormats[0].url
-            
-            const cookieMap = new cookiefile.CookieMap('cookies.txt')
-            const cookies = cookieMap.toRequestHeader().Replace('Cookie: ','')
-
-            const requestOptions = {
-                headers: {
-                    Cookie: cookies
-                }
-            }
-
-            const audioStream = ytdl(videoId, {
-                requestOptions,
-                quality: 'highestaudio'
-            },)
-
-            res.status(200).json({ audioUrl, audioStream })
+            res.status(200).json({ audioUrl })
         } else {
             res.status(404).json({ error: "Nenhum formato de áudio encontrado." })
         }
