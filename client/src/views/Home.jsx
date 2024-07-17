@@ -13,7 +13,7 @@ export default function Home() {
     const [likedSongs, setLikedSongs] = useState([])
     const [isLoading, setLoading] = useState(false)
 
-    const vpsEndpoint = 'https://89cd-179-94-36-68.ngrok-free.app'
+    const vpsEndpoint = 'https://workable-sloth-strangely.ngrok-free.app'
 
     async function loadLikedSongs() {
 
