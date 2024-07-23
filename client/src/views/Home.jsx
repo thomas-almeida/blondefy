@@ -1,8 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import IonIcon from '../components/IonIcon'
+import { useNavigate } from 'react-router-dom'
 
 export default function Home() {
+
     const [inputValue, setInputValue] = useState('')
     const [searchValues, setSearchValues] = useState([])
     const [currentSong, setCurrentSong] = useState('')
@@ -12,8 +15,13 @@ export default function Home() {
     const [isLiked, setLiked] = useState(false)
     const [likedSongs, setLikedSongs] = useState([])
     const [isLoading, setLoading] = useState(false)
+    const [user, setUser] = useState({})
+    const params = new URLSearchParams(window.location.search)
+    const userId = params.get('id')
 
     const vpsEndpoint = 'https://workable-sloth-strangely.ngrok-free.app'
+    const redirect = useNavigate()
+    const userLogged = localStorage.getItem('user-logged')
 
     async function loadLikedSongs() {
 
@@ -24,6 +32,39 @@ export default function Home() {
         const likedSongsArr = JSON.parse(localStorage.getItem('likedSongs'))
         setLikedSongs(likedSongsArr)
     }
+
+    useEffect(() => {
+
+        console.log(params.get('id'))
+
+        if (userLogged === 'false') {
+            redirect('/sign-in')
+        }
+
+        async function getUser() {
+            
+            try {
+
+                const response = await axios.get(`${vpsEndpoint}/users/get-user-by-id/${userId}`,
+                    {
+                        headers: {
+                            'ngrok-skip-browser-warning': '69420',
+                            'Access-Control-Allow-Origin': '*',
+                        }
+                    }
+                )
+
+                setUser(response.data?.user)
+                localStorage.setItem('userData', user)
+
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        getUser()
+
+    }, [redirect, userLogged, params])
 
     useEffect(() => {
         loadLikedSongs()
