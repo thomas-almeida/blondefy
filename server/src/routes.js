@@ -12,5 +12,6 @@ api.post('/get-stream-url', musicController.getStreamUrl)
 api.post('/users/sign-up', userController.signUp)
 api.post('/users/sign-in', userController.signIn)
 api.get('/users/get-user-by-id/:id', userController.getUser)
+api.post('/users/songs/like-song', userController.likeSong)
 
 export default api
