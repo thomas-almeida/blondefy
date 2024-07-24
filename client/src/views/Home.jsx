@@ -38,33 +38,12 @@ export default function Home() {
         console.log(params.get('id'))
 
         if (userLogged === 'false') {
-            redirect('/sign-in')
+            redirect('/')
+        } else {
+            getUser()
         }
 
-        async function getUser() {
-            
-            try {
-
-                const response = await axios.get(`${vpsEndpoint}/users/get-user-by-id/${userId}`,
-                    {
-                        headers: {
-                            'ngrok-skip-browser-warning': '69420',
-                            'Access-Control-Allow-Origin': '*',
-                        }
-                    }
-                )
-
-                setUser(response.data?.user)
-                localStorage.setItem('userData', user)
-
-            } catch (error) {
-                console.error(error)
-            }
-        }
-
-        getUser()
-
-    }, [redirect, userLogged, params])
+    }, [])
 
     useEffect(() => {
         loadLikedSongs()
@@ -94,6 +73,28 @@ export default function Home() {
             return () => clearTimeout(timeoutId)
         }
     }, [isLoading])
+
+
+    async function getUser() {
+
+        try {
+
+            const response = await axios.get(`${vpsEndpoint}/users/get-user-by-id/${userId}`,
+                {
+                    headers: {
+                        'ngrok-skip-browser-warning': '69420',
+                        'Access-Control-Allow-Origin': '*',
+                    }
+                }
+            )
+
+            setUser(response.data?.user)
+            localStorage.setItem('userData', user)
+
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     async function searchSong() {
         try {
@@ -155,7 +156,7 @@ export default function Home() {
     }
 
 
-    function likeSong(songInfo) {
+    async function likeSong(songInfo) {
 
         let updatedLikedSongs
 
@@ -170,6 +171,21 @@ export default function Home() {
             setLikedSongs(updatedLikedSongs);
         }
 
+        try {
+
+            const response = await axios.post(`${vpsEndpoint}/users/songs/like-song`, {
+                userId: user.id,
+                song: songInfo
+            })
+
+            console.log(response.data)
+
+        } catch (error) {
+            console.error(error)
+        }
+
+
+
         localStorage.setItem('likedSongs', JSON.stringify(updatedLikedSongs));
     }
 
@@ -177,6 +193,7 @@ export default function Home() {
 
         if (isVisibleLikedSongs === false) {
             setIsVisibleLikedSongs(true)
+            getUser()
             setFetched(false)
         }
     }
@@ -198,12 +215,11 @@ export default function Home() {
                     <span>
                         <img
                             className="w-[50px] h-[50px] rounded-full object-cover"
-                            src='/default.webp'
-                            alt=""
+                            src={user?.picture}
                         />
                     </span>
                     <span className="mx-4 w-[250px]">
-                        <h1 className="text-2xl font-semibold">Test user</h1>
+                        <h1 className="text-2xl font-semibold">{user?.name}</h1>
                         <b className="text-sm text-gray-400">FREE FOREVER</b>
                     </span>
                 </div>
@@ -286,7 +302,7 @@ export default function Home() {
 
                 <div className={`overflow-y-scroll mb-2 ${isVisibleLikedSongs ? 'uk-display-block' : 'hidden h-[100vh]'} ${isVisible ? `h-[55vh]` : ''}`}>
 
-                    {likedSongs.map((song) => (
+                    {user?.likedSongs?.map((song) => (
 
                         <div
                             key={song?.info?.videoId}
