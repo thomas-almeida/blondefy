@@ -335,12 +335,12 @@ export default function Home() {
                 </div>
 
                 <div className={`w-[90%] uk-position-fixed bottom-4 rounded-sm bg-[#f1f3f4] text-slate-900 uk-box-shadow-xlarge ${isVisible ? 'uk-display-block' : 'hidden'}`}>
-                    <div className="flex m-2 pb-2">
+                    <div className="flex justify-around m-2 pb-2">
                         <span>
                             <img className="max-w-14 h-14 object-cover rounded-sm uk-box-shadow-xlarge" src={currentSong?.info?.image} alt="" />
                         </span>
                         <span className="px-4">
-                            <h1 className="text-xlg whitespace-nowrap text-ellipsis overflow-hidden w-[190px] font-bold">{currentSong?.info?.title}</h1>
+                            <h1 className="text-xlg whitespace-nowrap text-ellipsis overflow-hidden w-[170px] font-bold">{currentSong?.info?.title}</h1>
                             <p className="text-sm whitespace-nowrap text-ellipsis overflow-hidden">{currentSong?.info?.author.name}</p>
                         </span>
                         <span
