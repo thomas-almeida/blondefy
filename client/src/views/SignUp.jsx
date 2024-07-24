@@ -25,7 +25,7 @@ export default function SignUp() {
             name: userName,
             email: userEmail,
             password: userPassword,
-            profilePic: chimpersList[Math.floor(Math.random() * 10)]
+            picture: chimpersList[Math.floor(Math.random() * 10)]
         }
 
         try {
@@ -43,7 +43,7 @@ export default function SignUp() {
             }
 
             const userId = response.data.data?.id
-            redirect(`/?id=${userId}`)
+            redirect(`/home?id=${userId}`)
             localStorage.setItem('user-logged', true)
 
         } catch (error) {

@@ -38,7 +38,7 @@ export default function SignIn() {
 
             const userId = response.data?.user?.id
             localStorage.setItem('user-logged', true)
-            redirect(`/?id=${userId}`)
+            redirect(`/home?id=${userId}`)
 
         } catch (error) {
             alert(error?.message)
