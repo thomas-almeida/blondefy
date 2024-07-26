@@ -146,13 +146,25 @@ export default function Home() {
     }
 
     async function getLikedSong(song) {
-        setCurrentSong({
-            info: song?.info,
-            audio: song?.audio
-        })
-        console.log(currentSong)
-        setIsVisible(true)
-        setLiked(true)
+
+        try {
+
+            const response = await axios.post(`${vpsEndpoint}/get-stream-url`, {
+                videoId: song?.info?.videoId
+            })
+
+            setCurrentSong({
+                info: song?.info,
+                audio: response.data?.audioUrl
+            })
+
+            setIsVisible(true)
+            setLiked(true)
+
+        } catch (error) {
+            console.error(error)
+            alert(error)
+        }
     }
 
 
