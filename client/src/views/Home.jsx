@@ -365,7 +365,7 @@ export default function Home() {
                         </span>
                     </div>
 
-                    <audio src={currentSong?.audio} className="w-[100%] h-[30px]" controls autoPlay></audio>
+                    <audio src={currentSong?.audio} className="w-[100%] h-[30px]" controls autoPlay loop></audio>
                 </div>
 
             </div>
